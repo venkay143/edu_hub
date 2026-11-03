@@ -13,19 +13,24 @@ import {
   Sparkles,
   Menu,
   X,
-  FileText
+  FileText,
+  User,
+  LogOut
 } from 'lucide-react';
-import { CourseInfo, Subject } from '../types';
+import { CourseInfo, Subject, StudentUser } from '../types';
 
 interface NavbarProps {
   courseInfo: CourseInfo;
   activeView: 'dashboard' | 'progress' | string; // string is subject id
   subjects: Subject[];
+  currentStudent?: StudentUser | null;
   onSelectView: (view: 'dashboard' | 'progress' | string) => void;
   onOpenSearch: () => void;
   onOpenTimer: () => void;
   onOpenCustomizer: () => void;
   onOpenOfficialPdf: () => void;
+  onOpenProfile?: () => void;
+  onLogout?: () => void;
   onExportData: () => void;
   onImportData: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onResetData: () => void;
@@ -37,11 +42,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   courseInfo,
   activeView,
   subjects,
+  currentStudent,
   onSelectView,
   onOpenSearch,
   onOpenTimer,
   onOpenCustomizer,
   onOpenOfficialPdf,
+  onOpenProfile,
+  onLogout,
   onExportData,
   onImportData,
   onResetData,
@@ -299,6 +307,27 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
+            {/* Student Account Badge & Profile Trigger */}
+            {currentStudent && onOpenProfile && (
+              <button
+                onClick={onOpenProfile}
+                className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white transition-all shadow-xs cursor-pointer group"
+                title={`Logged in as ${currentStudent.name} (${currentStudent.rollNumber}). Click to view profile.`}
+              >
+                <div className="w-6 h-6 rounded-lg bg-indigo-600 text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">
+                  {currentStudent.rollNumber.slice(-2)}
+                </div>
+                <div className="text-left hidden sm:block">
+                  <span className="text-[11px] font-mono font-bold block leading-none text-indigo-300">
+                    {currentStudent.rollNumber}
+                  </span>
+                  <span className="text-[10px] text-slate-300 block truncate max-w-[90px] leading-tight">
+                    {currentStudent.name}
+                  </span>
+                </div>
+              </button>
+            )}
+
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -313,6 +342,46 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-2">
+          {/* Mobile Student Profile Bar */}
+          {currentStudent && (
+            <div className="bg-slate-900 text-white p-3 rounded-xl flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">
+                  #{currentStudent.rollNumber.slice(-2)}
+                </div>
+                <div>
+                  <div className="text-xs font-bold">{currentStudent.name}</div>
+                  <div className="text-[11px] font-mono text-indigo-300">{currentStudent.rollNumber} • {currentStudent.section}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {onOpenProfile && (
+                  <button
+                    onClick={() => {
+                      onOpenProfile();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white"
+                  >
+                    Profile
+                  </button>
+                )}
+                {onLogout && (
+                  <button
+                    onClick={() => {
+                      onLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="p-1.5 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-xs font-semibold"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <span className="text-xs font-bold text-slate-700">R-22 Regulation</span>
             <span className="text-xs text-indigo-600 font-semibold">{courseInfo.semester}</span>

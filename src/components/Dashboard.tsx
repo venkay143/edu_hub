@@ -21,12 +21,13 @@ import {
   ExternalLink,
   GraduationCap
 } from 'lucide-react';
-import { Subject, CourseInfo, DailyGoal } from '../types';
+import { Subject, CourseInfo, DailyGoal, StudentUser } from '../types';
 
 interface DashboardProps {
   courseInfo: CourseInfo;
   subjects: Subject[];
   dailyGoals: DailyGoal[];
+  currentStudent?: StudentUser | null;
   onSelectSubject: (subjectId: string, initialTab?: 'syllabus' | 'papers' | 'analysis' | 'materials') => void;
   onToggleGoal: (goalId: string) => void;
   onAddGoal: (text: string) => void;
@@ -40,6 +41,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   courseInfo,
   subjects,
   dailyGoals,
+  currentStudent,
   onSelectSubject,
   onToggleGoal,
   onAddGoal,
@@ -92,9 +94,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold">
-              <GraduationCap className="w-3.5 h-3.5" />
-              <span>GVPCDPGC(A) Rushikonda, Visakhapatnam • R-22 Regulation</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold">
+                <GraduationCap className="w-3.5 h-3.5" />
+                <span>GVPCDPGC(A) Rushikonda • R-22 Regulation</span>
+              </div>
+              {currentStudent && (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Class Member: {currentStudent.name} (#{currentStudent.rollNumber.slice(-2)} • {currentStudent.section})</span>
+                </div>
+              )}
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">

@@ -1,3 +1,14 @@
+export interface StudentUser {
+  rollNumber: string; // "5241412001" to "5241412070"
+  name: string; // e.g. "Student 01" or custom name
+  branch: string; // "B.Tech CSE (AI & ML) - R-22"
+  semester: string; // "III Year – I Semester"
+  section?: string; // "Section A" or "Section B"
+  customPassword?: string;
+  avatarColor?: string;
+  lastLogin?: string;
+}
+
 export interface CourseInfo {
   universityName: string;
   course: string;

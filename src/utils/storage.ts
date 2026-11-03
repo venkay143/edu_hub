@@ -32,10 +32,12 @@ export const saveCourseInfo = (info: CourseInfo): void => {
   }
 };
 
-export const loadSubjects = (): Subject[] => {
+export const loadSubjects = (rollNumber?: string): Subject[] => {
   try {
-    const ver = localStorage.getItem(VERSION_KEY);
-    const raw = localStorage.getItem(SUBJECTS_KEY);
+    const key = rollNumber ? `${SUBJECTS_KEY}_${rollNumber}` : SUBJECTS_KEY;
+    const versionKey = rollNumber ? `${VERSION_KEY}_${rollNumber}` : VERSION_KEY;
+    const ver = localStorage.getItem(versionKey);
+    const raw = localStorage.getItem(key);
     
     if (raw) {
       const parsed = JSON.parse(raw);
@@ -76,15 +78,15 @@ export const loadSubjects = (): Subject[] => {
         });
 
         if (ver !== SYLLABUS_VERSION) {
-          localStorage.setItem(VERSION_KEY, SYLLABUS_VERSION);
-          saveSubjects(mergedSubjects);
+          localStorage.setItem(versionKey, SYLLABUS_VERSION);
+          saveSubjects(mergedSubjects, rollNumber);
         }
         return mergedSubjects;
       }
     }
 
-    localStorage.setItem(VERSION_KEY, SYLLABUS_VERSION);
-    saveSubjects(initialSubjects);
+    localStorage.setItem(versionKey, SYLLABUS_VERSION);
+    saveSubjects(initialSubjects, rollNumber);
     return initialSubjects;
   } catch (e) {
     console.warn('Failed to load subjects from localStorage', e);
@@ -92,17 +94,19 @@ export const loadSubjects = (): Subject[] => {
   return initialSubjects;
 };
 
-export const saveSubjects = (subjects: Subject[]): void => {
+export const saveSubjects = (subjects: Subject[], rollNumber?: string): void => {
   try {
-    localStorage.setItem(SUBJECTS_KEY, JSON.stringify(subjects));
+    const key = rollNumber ? `${SUBJECTS_KEY}_${rollNumber}` : SUBJECTS_KEY;
+    localStorage.setItem(key, JSON.stringify(subjects));
   } catch (e) {
     console.error('Failed to save subjects', e);
   }
 };
 
-export const loadDailyGoals = (): DailyGoal[] => {
+export const loadDailyGoals = (rollNumber?: string): DailyGoal[] => {
   try {
-    const raw = localStorage.getItem(GOALS_KEY);
+    const key = rollNumber ? `${GOALS_KEY}_${rollNumber}` : GOALS_KEY;
+    const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
   } catch (e) {
     console.warn('Failed to load daily goals', e);
@@ -112,37 +116,40 @@ export const loadDailyGoals = (): DailyGoal[] => {
     { id: 'goal-2', text: 'Draw Control Flow Graph & Calculate Cyclomatic Complexity V(G) (CSM3102 OOSE)', completed: false, date: new Date().toISOString().split('T')[0] },
     { id: 'goal-3', text: 'Practice CRC Polynomial Division & VLSM Subnetting (CSM3103 CN)', completed: false, date: new Date().toISOString().split('T')[0] },
     { id: 'goal-4', text: 'Trace Water Jug State Space rules & A* heuristic (CSM3104 AI)', completed: false, date: new Date().toISOString().split('T')[0] },
-    { id: 'goal-5', text: 'Revise Confusion Matrix, Precision, Recall, F1 formulas (CSM3105 Data Science)', completed: false, date: new Date().toISOString().split('T')[0] },
+    { id: 'goal-5', text: 'Review Data Science lifecycle: CRISP-DM & EDA (CSM3105 DS)', completed: false, date: new Date().toISOString().split('T')[0] },
   ];
 };
 
-export const saveDailyGoals = (goals: DailyGoal[]): void => {
+export const saveDailyGoals = (goals: DailyGoal[], rollNumber?: string): void => {
   try {
-    localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+    const key = rollNumber ? `${GOALS_KEY}_${rollNumber}` : GOALS_KEY;
+    localStorage.setItem(key, JSON.stringify(goals));
   } catch (e) {
-    console.error('Failed to save goals', e);
+    console.error('Failed to save daily goals', e);
   }
 };
 
-export const loadStudySessions = (): StudySessionLog[] => {
+export const loadStudySessions = (rollNumber?: string): StudySessionLog[] => {
   try {
-    const raw = localStorage.getItem(SESSIONS_KEY);
+    const key = rollNumber ? `${SESSIONS_KEY}_${rollNumber}` : SESSIONS_KEY;
+    const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
   } catch (e) {
-    console.warn('Failed to load sessions', e);
+    console.warn('Failed to load study sessions', e);
   }
   return [
-    { id: 's1', subjectId: 'csm3101', subjectName: 'Data Warehousing and Data Mining', minutes: 45, timestamp: new Date(Date.now() - 3600000 * 5).toISOString(), type: 'pomodoro' },
-    { id: 's2', subjectId: 'csm3102', subjectName: 'Object-Oriented Software Engineering', minutes: 60, timestamp: new Date(Date.now() - 3600000 * 24).toISOString(), type: 'revision' },
-    { id: 's3', subjectId: 'csm3103', subjectName: 'Computer Networks', minutes: 180, timestamp: new Date(Date.now() - 3600000 * 48).toISOString(), type: 'mock_exam' },
+    { id: 's-1', subjectId: 'csm3101', subjectName: 'Data Warehousing & Mining', minutes: 50, timestamp: new Date(Date.now() - 3600000 * 2).toISOString(), type: 'pomodoro' },
+    { id: 's-2', subjectId: 'csm3103', subjectName: 'Computer Networks', minutes: 45, timestamp: new Date(Date.now() - 3600000 * 6).toISOString(), type: 'pomodoro' },
+    { id: 's-3', subjectId: 'csm3102', subjectName: 'Object-Oriented Software Eng', minutes: 30, timestamp: new Date(Date.now() - 3600000 * 24).toISOString(), type: 'mock_exam' },
   ];
 };
 
-export const saveStudySessions = (sessions: StudySessionLog[]): void => {
+export const saveStudySessions = (sessions: StudySessionLog[], rollNumber?: string): void => {
   try {
-    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+    const key = rollNumber ? `${SESSIONS_KEY}_${rollNumber}` : SESSIONS_KEY;
+    localStorage.setItem(key, JSON.stringify(sessions));
   } catch (e) {
-    console.error('Failed to save sessions', e);
+    console.error('Failed to save study sessions', e);
   }
 };
 

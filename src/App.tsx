@@ -17,7 +17,7 @@ import {
   exportDataBackup, 
   resetToDefaultData 
 } from './utils/storage';
-import { CourseInfo, Subject, DailyGoal, StudySessionLog, ModelPaper, FacultyMaterial } from './types';
+import { CourseInfo, Subject, DailyGoal, StudySessionLog, ModelPaper, FacultyMaterial, StudentUser } from './types';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import { SubjectDetail } from './components/SubjectDetail';
@@ -29,14 +29,30 @@ import { FocusTimerModal } from './components/FocusTimerModal';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { CustomizerModal } from './components/CustomizerModal';
 import { OfficialPdfViewerModal } from './components/OfficialPdfViewerModal';
+import { LoginView } from './components/LoginView';
+import { StudentProfileModal } from './components/StudentProfileModal';
+import { getActiveStudent, setActiveStudent } from './utils/studentAuth';
 import { playChime } from './utils/audio';
 
 export default function App() {
-  // Core persistent data
+  // Current authenticated class member (5241412001 - 5241412070)
+  const [currentStudent, setCurrentStudent] = useState<StudentUser | null>(getActiveStudent);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  // Core persistent data (keyed per-student when logged in)
   const [courseInfo, setCourseInfo] = useState<CourseInfo>(loadCourseInfo);
-  const [subjects, setSubjects] = useState<Subject[]>(loadSubjects);
-  const [dailyGoals, setDailyGoals] = useState<DailyGoal[]>(loadDailyGoals);
-  const [studySessions, setStudySessions] = useState<StudySessionLog[]>(loadStudySessions);
+  const [subjects, setSubjects] = useState<Subject[]>(() => {
+    const active = getActiveStudent();
+    return loadSubjects(active?.rollNumber);
+  });
+  const [dailyGoals, setDailyGoals] = useState<DailyGoal[]>(() => {
+    const active = getActiveStudent();
+    return loadDailyGoals(active?.rollNumber);
+  });
+  const [studySessions, setStudySessions] = useState<StudySessionLog[]>(() => {
+    const active = getActiveStudent();
+    return loadStudySessions(active?.rollNumber);
+  });
 
   // Active view routing
   const [activeView, setActiveView] = useState<'dashboard' | 'progress' | string>('dashboard');
@@ -61,22 +77,22 @@ export default function App() {
   const [timerSecondsRemaining, setTimerSecondsRemaining] = useState(25 * 60);
   const [timerTotalDuration, setTimerTotalDuration] = useState(25 * 60);
 
-  // Sync to LocalStorage on updates
+  // Sync to LocalStorage on updates (stored per student)
   useEffect(() => {
     saveCourseInfo(courseInfo);
   }, [courseInfo]);
 
   useEffect(() => {
-    saveSubjects(subjects);
-  }, [subjects]);
+    saveSubjects(subjects, currentStudent?.rollNumber);
+  }, [subjects, currentStudent]);
 
   useEffect(() => {
-    saveDailyGoals(dailyGoals);
-  }, [dailyGoals]);
+    saveDailyGoals(dailyGoals, currentStudent?.rollNumber);
+  }, [dailyGoals, currentStudent]);
 
   useEffect(() => {
-    saveStudySessions(studySessions);
-  }, [studySessions]);
+    saveStudySessions(studySessions, currentStudent?.rollNumber);
+  }, [studySessions, currentStudent]);
 
   // Global background timer countdown
   useEffect(() => {
@@ -218,8 +234,38 @@ export default function App() {
     setIsOfficialPdfOpen(true);
   };
 
+  // Student Authentication Handlers
+  const handleLoginSuccess = (student: StudentUser) => {
+    setCurrentStudent(student);
+    setSubjects(loadSubjects(student.rollNumber));
+    setDailyGoals(loadDailyGoals(student.rollNumber));
+    setStudySessions(loadStudySessions(student.rollNumber));
+    playChime('complete');
+    confetti({ particleCount: 70, spread: 70 });
+  };
+
+  const handleLogout = () => {
+    setActiveStudent(null);
+    setCurrentStudent(null);
+    setIsProfileModalOpen(false);
+  };
+
+  const handleUpdateStudent = (updated: StudentUser) => {
+    setCurrentStudent(updated);
+  };
+
+  // Login Gate: If no student is signed in, show the 70-member Login View
+  if (!currentStudent) {
+    return <LoginView onLoginSuccess={handleLoginSuccess} />;
+  }
+
   // Find currently active subject if viewing a subject
   const currentSubject = subjects.find(s => s.id === activeView);
+
+  // Student progress metrics
+  const totalTopicsCount = subjects.reduce((acc, sub) => acc + sub.units.reduce((uacc, u) => uacc + u.topics.length, 0), 0);
+  const completedTopicsCount = subjects.reduce((acc, sub) => acc + sub.units.reduce((uacc, u) => uacc + u.topics.filter(t => t.completed).length, 0), 0);
+  const overallProgressPct = totalTopicsCount > 0 ? Math.round((completedTopicsCount / totalTopicsCount) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800">
@@ -229,6 +275,7 @@ export default function App() {
         courseInfo={courseInfo}
         activeView={activeView}
         subjects={subjects}
+        currentStudent={currentStudent}
         onSelectView={(v) => {
           setActiveView(v);
           setActiveSubjectTab('syllabus');
@@ -237,6 +284,8 @@ export default function App() {
         onOpenTimer={() => setIsTimerOpen(true)}
         onOpenCustomizer={() => setIsCustomizerOpen(true)}
         onOpenOfficialPdf={() => handleOpenOfficialPdfAtPage(87)}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
+        onLogout={handleLogout}
         onExportData={handleExportData}
         onImportData={handleImportData}
         onResetData={handleResetData}
@@ -251,6 +300,7 @@ export default function App() {
             courseInfo={courseInfo}
             subjects={subjects}
             dailyGoals={dailyGoals}
+            currentStudent={currentStudent}
             onSelectSubject={handleSelectSubject}
             onToggleGoal={handleToggleGoal}
             onAddGoal={handleAddGoal}
@@ -371,6 +421,19 @@ export default function App() {
             setCourseInfo(newInfo);
             setSubjects(newSubs);
           }}
+        />
+      )}
+
+      {/* Student Profile & Password Modal */}
+      {currentStudent && (
+        <StudentProfileModal
+          student={currentStudent}
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          onUpdateStudent={handleUpdateStudent}
+          onLogout={handleLogout}
+          readinessPct={overallProgressPct}
+          completedTopicsCount={completedTopicsCount}
         />
       )}
 
