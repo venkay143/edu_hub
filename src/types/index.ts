@@ -119,6 +119,12 @@ export interface Subject {
   facultyName: string;
   category?: 'theory' | 'elective' | 'lab' | 'skill' | 'honors';
   pdfPages?: string; // e.g. "Page 88-89"
+  courseObjectives?: string[];
+  courseOutcomes?: string[];
+  textBooks?: string[];
+  referenceBooks?: string[];
+  webReferences?: string[];
+  caseStudies?: string[];
   units: Unit[];
   papers: ModelPaper[];
   analysis: SubjectAnalysis;

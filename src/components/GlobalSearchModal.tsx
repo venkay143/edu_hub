@@ -128,6 +128,20 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
           badge: m.type === 'lecture_notes' ? 'Notes' : 'Cheat Sheet',
         });
       });
+
+      // 5. Prescribed Textbooks
+      sub.textBooks?.forEach((tb, i) => {
+        list.push({
+          id: `tb-${sub.id}-${i}`,
+          type: 'syllabus',
+          title: `Textbook: ${tb}`,
+          subtitle: `Prescribed book for ${sub.name} (${sub.code})`,
+          subjectId: sub.id,
+          subjectName: sub.name,
+          subjectCode: sub.code,
+          badge: 'Prescribed Book',
+        });
+      });
     });
 
     return list;

@@ -153,12 +153,28 @@ ${(material.keyPoints || []).map((kp, i) => `${i + 1}. ${kp}`).join('\n')}
           
           {/* If uploaded PDF blob URL is available */}
           {blobUrl ? (
-            <div className="w-full h-[65vh] rounded-2xl overflow-hidden border border-slate-200 bg-white">
-              <iframe
-                src={blobUrl}
-                title={material.title}
-                className="w-full h-full border-none"
-              />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
+                <span className="text-xs text-slate-600 font-medium">
+                  Viewing uploaded document. If Chrome blocks the inline preview, open it in a new window:
+                </span>
+                <a
+                  href={blobUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open in New Tab</span>
+                </a>
+              </div>
+              <div className="w-full h-[65vh] rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-xs">
+                <iframe
+                  src={blobUrl}
+                  title={material.title}
+                  className="w-full h-full border-none"
+                />
+              </div>
             </div>
           ) : (
             /* Document Reader Template */

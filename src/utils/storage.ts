@@ -1,7 +1,7 @@
 import { Subject, CourseInfo, DailyGoal, StudySessionLog, FacultyMaterial } from '../types';
 import { initialCourseInfo, initialSubjects } from '../data/initialSubjects';
 
-const SYLLABUS_VERSION = 'r22_csm_v3';
+const SYLLABUS_VERSION = 'r22_csm_v4_complete';
 const VERSION_KEY = 'smart_edu_version';
 const COURSE_KEY = 'smart_edu_course_info_r22';
 const SUBJECTS_KEY = 'smart_edu_subjects_r22';
@@ -35,18 +35,57 @@ export const saveCourseInfo = (info: CourseInfo): void => {
 export const loadSubjects = (): Subject[] => {
   try {
     const ver = localStorage.getItem(VERSION_KEY);
-    if (ver !== SYLLABUS_VERSION) {
-      localStorage.setItem(VERSION_KEY, SYLLABUS_VERSION);
-      saveSubjects(initialSubjects);
-      return initialSubjects;
-    }
     const raw = localStorage.getItem(SUBJECTS_KEY);
+    
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.code?.startsWith('CSM31')) {
-        return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Build a map of saved topic completions and notes
+        const savedTopics = new Map<string, { completed: boolean; personalNotes?: string }>();
+        const practicedPapers = new Set<string>();
+
+        parsed.forEach((sub: Subject) => {
+          sub.units?.forEach(u => {
+            u.topics?.forEach(t => {
+              savedTopics.set(t.id, { completed: t.completed, personalNotes: t.personalNotes });
+            });
+          });
+          sub.papers?.forEach(p => {
+            if (p.isPracticed) practicedPapers.add(p.id);
+          });
+        });
+
+        // Merge saved progress into the fresh, official initialSubjects
+        const mergedSubjects: Subject[] = initialSubjects.map(sub => {
+          return {
+            ...sub,
+            papers: sub.papers.map(p => ({
+              ...p,
+              isPracticed: practicedPapers.has(p.id) || p.isPracticed,
+            })),
+            units: sub.units.map(u => ({
+              ...u,
+              topics: u.topics.map(t => {
+                const saved = savedTopics.get(t.id);
+                return saved
+                  ? { ...t, completed: saved.completed, personalNotes: saved.personalNotes || t.personalNotes }
+                  : t;
+              }),
+            })),
+          };
+        });
+
+        if (ver !== SYLLABUS_VERSION) {
+          localStorage.setItem(VERSION_KEY, SYLLABUS_VERSION);
+          saveSubjects(mergedSubjects);
+        }
+        return mergedSubjects;
       }
     }
+
+    localStorage.setItem(VERSION_KEY, SYLLABUS_VERSION);
+    saveSubjects(initialSubjects);
+    return initialSubjects;
   } catch (e) {
     console.warn('Failed to load subjects from localStorage', e);
   }
