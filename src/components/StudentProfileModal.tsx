@@ -92,42 +92,42 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-linear-to-r from-slate-900 to-indigo-950 text-white p-5 sm:p-6 relative">
+        <div className="bg-slate-50 border-b border-slate-200 p-5 sm:p-6 relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
+            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
 
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white font-extrabold text-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
+            <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white font-bold text-lg flex items-center justify-center">
               #{student.rollNumber.slice(-2)}
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-xl font-extrabold text-white">
+                <h3 className="text-lg font-bold text-slate-900">
                   {student.name}
                 </h3>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-200 text-slate-800">
                   {student.rollNumber}
                 </span>
               </div>
-              <p className="text-xs text-slate-300 mt-1">
+              <p className="text-xs text-slate-600 mt-0.5">
                 Seat #{classSerial} of 70 • {student.section} • CSE (AI & ML)
               </p>
             </div>
           </div>
 
-          {/* Quick Stats Pill */}
-          <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-2 gap-3 text-center">
-            <div className="bg-white/5 rounded-xl p-2">
-              <span className="text-xs text-slate-400 block">Exam Readiness</span>
-              <span className="text-lg font-black text-emerald-400">{readinessPct}%</span>
+          {/* Quick Stats */}
+          <div className="mt-4 pt-3 border-t border-slate-200 grid grid-cols-2 gap-3 text-center">
+            <div className="bg-white rounded-xl p-2.5 border border-slate-200">
+              <span className="text-xs text-slate-500 block">Exam Readiness</span>
+              <span className="text-lg font-bold text-indigo-600">{readinessPct}%</span>
             </div>
-            <div className="bg-white/5 rounded-xl p-2">
-              <span className="text-xs text-slate-400 block">Topics Mastered</span>
-              <span className="text-lg font-black text-indigo-300">{completedTopicsCount} topics</span>
+            <div className="bg-white rounded-xl p-2.5 border border-slate-200">
+              <span className="text-xs text-slate-500 block">Topics Mastered</span>
+              <span className="text-lg font-bold text-slate-900">{completedTopicsCount} topics</span>
             </div>
           </div>
         </div>

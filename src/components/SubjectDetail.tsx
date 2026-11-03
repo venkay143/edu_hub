@@ -553,11 +553,11 @@ export const SubjectDetail: React.FC<SubjectDetailProps> = ({
                   {isExpanded && (
                     <div className="border-t border-slate-100 px-4 sm:px-6 py-5 bg-slate-50/50 space-y-4">
                       {/* Verbatim Official Syllabus Box */}
-                      <div className="bg-slate-900 text-slate-100 rounded-2xl p-4 sm:p-5 space-y-3 shadow-sm border border-slate-800">
+                      <div className="bg-indigo-50/40 rounded-xl p-4 sm:p-5 space-y-2.5 border border-indigo-100/80">
                         <div className="flex items-center justify-between flex-wrap gap-2">
-                          <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider text-indigo-300">
-                            <BookOpen className="w-4 h-4 text-indigo-400" />
-                            <span>Official Prescribed Syllabus (Verbatim GVPCDPGC R-22 Curriculum)</span>
+                          <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider text-indigo-950">
+                            <BookOpen className="w-4 h-4 text-indigo-600" />
+                            <span>Prescribed Syllabus (Official GVP R-22 Curriculum)</span>
                           </div>
                           <button
                             onClick={(e) => {
@@ -566,23 +566,23 @@ export const SubjectDetail: React.FC<SubjectDetailProps> = ({
                               setCopiedUnitId(unit.id);
                               setTimeout(() => setCopiedUnitId(null), 2000);
                             }}
-                            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shadow-2xs"
                             title="Copy unit syllabus text"
                           >
                             {copiedUnitId === unit.id ? (
                               <>
-                                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                <span className="text-emerald-400 font-extrabold">Copied to Clipboard!</span>
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                <span className="text-emerald-700 font-bold">Copied to Clipboard!</span>
                               </>
                             ) : (
                               <>
                                 <Copy className="w-3.5 h-3.5 text-slate-400" />
-                                <span>Copy Full Syllabus Text</span>
+                                <span>Copy Syllabus Text</span>
                               </>
                             )}
                           </button>
                         </div>
-                        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal whitespace-pre-line bg-slate-800/90 p-4 rounded-xl border border-slate-700/80">
+                        <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal whitespace-pre-line bg-white p-3.5 rounded-lg border border-indigo-100/80">
                           {unit.description}
                         </p>
                       </div>
