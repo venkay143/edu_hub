@@ -28,6 +28,7 @@ import { UploadMaterialModal } from './components/UploadMaterialModal';
 import { FocusTimerModal } from './components/FocusTimerModal';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { CustomizerModal } from './components/CustomizerModal';
+import { OfficialPdfViewerModal } from './components/OfficialPdfViewerModal';
 import { playChime } from './utils/audio';
 
 export default function App() {
@@ -48,11 +49,14 @@ export default function App() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [uploadSubjectId, setUploadSubjectId] = useState<string>('');
 
+  const [isOfficialPdfOpen, setIsOfficialPdfOpen] = useState(false);
+  const [pdfInitialPage, setPdfInitialPage] = useState<number>(87);
+
   const [viewingPaper, setViewingPaper] = useState<ModelPaper | null>(null);
   const [paperPracticeMode, setPaperPracticeMode] = useState(false);
   const [viewingDocument, setViewingDocument] = useState<FacultyMaterial | null>(null);
 
-  // Background focus timer state (persists as student navigates through the app)
+  // Background focus timer state
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerSecondsRemaining, setTimerSecondsRemaining] = useState(25 * 60);
   const [timerTotalDuration, setTimerTotalDuration] = useState(25 * 60);
@@ -209,6 +213,11 @@ export default function App() {
     window.location.reload();
   };
 
+  const handleOpenOfficialPdfAtPage = (page = 87) => {
+    setPdfInitialPage(page);
+    setIsOfficialPdfOpen(true);
+  };
+
   // Find currently active subject if viewing a subject
   const currentSubject = subjects.find(s => s.id === activeView);
 
@@ -227,6 +236,7 @@ export default function App() {
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenTimer={() => setIsTimerOpen(true)}
         onOpenCustomizer={() => setIsCustomizerOpen(true)}
+        onOpenOfficialPdf={() => handleOpenOfficialPdfAtPage(87)}
         onExportData={handleExportData}
         onImportData={handleImportData}
         onResetData={handleResetData}
@@ -250,6 +260,7 @@ export default function App() {
               setIsUploadOpen(true);
             }}
             onOpenTimer={() => setIsTimerOpen(true)}
+            onOpenOfficialPdf={() => handleOpenOfficialPdfAtPage(87)}
           />
         )}
 
@@ -281,9 +292,17 @@ export default function App() {
               setUploadSubjectId(subId);
               setIsUploadOpen(true);
             }}
+            onOpenOfficialPdfAtPage={handleOpenOfficialPdfAtPage}
           />
         )}
       </main>
+
+      {/* Official Syllabus PDF Modal (Pages 81-114) */}
+      <OfficialPdfViewerModal
+        isOpen={isOfficialPdfOpen}
+        initialPage={pdfInitialPage}
+        onClose={() => setIsOfficialPdfOpen(false)}
+      />
 
       {/* Interactive Modals */}
       {viewingPaper && currentSubject && (
@@ -359,19 +378,19 @@ export default function App() {
       <footer className="border-t border-slate-200 bg-white py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-700">
           <div className="flex items-center gap-2">
-            <span className="font-extrabold text-slate-900">Smart Education Hub</span>
+            <span className="font-extrabold text-slate-900">Gayatri Vidya Parishad College for Degree and PG Courses (Autonomous)</span>
             <span>•</span>
-            <span>Frontend Examination Preparation Portal</span>
+            <span>R-22 Regulation B.Tech CSE (AI & ML)</span>
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setIsCustomizerOpen(true)}
-              className="text-indigo-600 hover:underline font-semibold"
+              onClick={() => handleOpenOfficialPdfAtPage(87)}
+              className="text-rose-600 hover:underline font-bold"
             >
-              Configure Course & 5 Subjects
+              Official Syllabus PDF (Pages 81–114)
             </button>
             <span>•</span>
-            <span>Saved in LocalStorage & IndexedDB</span>
+            <span>Local Storage & IndexedDB</span>
           </div>
         </div>
       </footer>

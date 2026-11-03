@@ -34,6 +34,7 @@ interface SubjectDetailProps {
   onOpenPaperViewer: (paper: ModelPaper, practiceMode?: boolean) => void;
   onOpenDocumentViewer: (material: FacultyMaterial) => void;
   onOpenUploadModal: (subjectId: string) => void;
+  onOpenOfficialPdfAtPage?: (page: number) => void;
 }
 
 export const SubjectDetail: React.FC<SubjectDetailProps> = ({
@@ -44,6 +45,7 @@ export const SubjectDetail: React.FC<SubjectDetailProps> = ({
   onOpenPaperViewer,
   onOpenDocumentViewer,
   onOpenUploadModal,
+  onOpenOfficialPdfAtPage,
 }) => {
   const [activeTab, setActiveTab] = useState<'syllabus' | 'papers' | 'analysis' | 'materials'>(initialTab);
   
@@ -123,7 +125,22 @@ export const SubjectDetail: React.FC<SubjectDetailProps> = ({
             <span>Back to Dashboard</span>
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {subject.pdfPages && onOpenOfficialPdfAtPage && (
+              <button
+                onClick={() => {
+                  const match = subject.pdfPages?.match(/\d+/);
+                  const pageNum = match ? parseInt(match[0], 10) : 87;
+                  onOpenOfficialPdfAtPage(pageNum);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 font-bold text-xs transition-colors"
+                title="View this subject in the official PDF document"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>View in Official PDF ({subject.pdfPages})</span>
+              </button>
+            )}
+
             <button
               onClick={() => onOpenUploadModal(subject.id)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs transition-colors"

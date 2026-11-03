@@ -117,6 +117,8 @@ export interface Subject {
   bgGradient: string;
   credits: number;
   facultyName: string;
+  category?: 'theory' | 'elective' | 'lab' | 'skill' | 'honors';
+  pdfPages?: string; // e.g. "Page 88-89"
   units: Unit[];
   papers: ModelPaper[];
   analysis: SubjectAnalysis;

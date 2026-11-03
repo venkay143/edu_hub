@@ -12,7 +12,8 @@ import {
   ChevronDown, 
   Sparkles,
   Menu,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import { CourseInfo, Subject } from '../types';
 
@@ -24,6 +25,7 @@ interface NavbarProps {
   onOpenSearch: () => void;
   onOpenTimer: () => void;
   onOpenCustomizer: () => void;
+  onOpenOfficialPdf: () => void;
   onExportData: () => void;
   onImportData: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onResetData: () => void;
@@ -39,6 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSearch,
   onOpenTimer,
   onOpenCustomizer,
+  onOpenOfficialPdf,
   onExportData,
   onImportData,
   onResetData,
@@ -86,14 +89,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-extrabold text-slate-900 tracking-tight text-base sm:text-lg">
-                    SmartEdu<span className="text-indigo-600">Hub</span>
+                    GVP<span className="text-indigo-600">EduHub</span>
                   </span>
-                  <span className="hidden sm:inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Offline First
+                  <span className="hidden sm:inline-flex px-2 py-0.5 text-xs font-bold rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    R-22 Regulation
                   </span>
                 </div>
                 <p className="text-xs text-slate-700 font-medium hidden sm:block truncate max-w-xs">
-                  {courseInfo.branch} • {courseInfo.semester}
+                  B.Tech CSE (AI&ML) • III Year - I Sem
                 </p>
               </div>
             </button>
@@ -112,6 +115,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               Dashboard
             </button>
 
+            {/* Official Syllabus PDF Trigger */}
+            <button
+              onClick={onOpenOfficialPdf}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
+              title="Open Official GVPCDPGC R-22 Syllabus PDF (Pages 81-114)"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Official Syllabus PDF</span>
+              <span className="text-[10px] bg-rose-200 text-rose-900 px-1 rounded-sm">p.81-114</span>
+            </button>
+
             {/* Subjects Dropdown */}
             <div className="relative">
               <button
@@ -124,14 +138,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
-                <span>5 Subjects</span>
+                <span>Semester Subjects</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-60" />
               </button>
 
               {subjectsDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-72 rounded-xl bg-white border border-slate-200 shadow-xl py-2 z-50">
+                <div className="absolute left-0 mt-2 w-80 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 max-h-96 overflow-y-auto">
                   <div className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100">
-                    Your Semester Subjects
+                    III-I Semester Subjects (R-22)
                   </div>
                   {subjects.map((sub, idx) => (
                     <button
@@ -143,16 +157,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className="w-full text-left px-3 py-2 flex items-center justify-between hover:bg-slate-50 transition-colors text-sm"
                     >
                       <div className="flex items-center gap-2 truncate pr-2">
-                        <span className="w-5 h-5 rounded-md bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center">
+                        <span className="w-5 h-5 rounded-md bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
                           {idx + 1}
                         </span>
                         <div className="truncate">
                           <p className="font-semibold text-slate-800 truncate text-xs sm:text-sm">{sub.name}</p>
-                          <p className="text-[11px] text-slate-700 font-mono">{sub.code}</p>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-slate-700 font-mono">{sub.code}</span>
+                            {sub.pdfPages && (
+                              <span className="text-[10px] text-indigo-600 bg-indigo-50 px-1 rounded-sm">
+                                {sub.pdfPages}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <span className="text-xs font-bold px-1.5 py-0.5 rounded-sm bg-slate-100 text-slate-600">
-                        {sub.units.filter(u => u.topics.every(t => t.completed)).length}/{sub.units.length} Units
+                      <span className="text-xs font-bold px-1.5 py-0.5 rounded-sm bg-slate-100 text-slate-600 shrink-0">
+                        {sub.units.filter(u => u.topics.every(t => t.completed)).length}/{sub.units.length} U
                       </span>
                     </button>
                   ))}
@@ -264,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <div className="border-t border-slate-100 my-1"></div>
                   <button
                     onClick={() => {
-                      if (window.confirm('Reset all progress and return to default subjects data?')) {
+                      if (window.confirm('Reset all progress and return to default GVP R-22 subjects data?')) {
                         onResetData();
                       }
                       setDataDropdownOpen(false);
@@ -293,7 +314,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-2">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <span className="text-xs font-bold text-slate-700">{courseInfo.course}</span>
+            <span className="text-xs font-bold text-slate-700">R-22 Regulation</span>
             <span className="text-xs text-indigo-600 font-semibold">{courseInfo.semester}</span>
           </div>
 
@@ -322,8 +343,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
+          <button
+            onClick={() => {
+              onOpenOfficialPdf();
+              setMobileMenuOpen(false);
+            }}
+            className="w-full py-2 px-3 rounded-lg bg-rose-50 text-rose-700 font-bold text-xs flex items-center justify-center gap-2 border border-rose-200"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Open Official Syllabus PDF (p. 81-114)</span>
+          </button>
+
           <div className="pt-2">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Subjects</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Semester Subjects</p>
             <div className="space-y-1">
               {subjects.map((sub) => (
                 <button

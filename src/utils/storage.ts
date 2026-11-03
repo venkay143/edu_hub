@@ -1,13 +1,21 @@
 import { Subject, CourseInfo, DailyGoal, StudySessionLog, FacultyMaterial } from '../types';
 import { initialCourseInfo, initialSubjects } from '../data/initialSubjects';
 
-const COURSE_KEY = 'smart_edu_course_info';
-const SUBJECTS_KEY = 'smart_edu_subjects';
-const GOALS_KEY = 'smart_edu_daily_goals';
-const SESSIONS_KEY = 'smart_edu_study_sessions';
+const SYLLABUS_VERSION = 'r22_csm_v3';
+const VERSION_KEY = 'smart_edu_version';
+const COURSE_KEY = 'smart_edu_course_info_r22';
+const SUBJECTS_KEY = 'smart_edu_subjects_r22';
+const GOALS_KEY = 'smart_edu_daily_goals_r22';
+const SESSIONS_KEY = 'smart_edu_study_sessions_r22';
 
 export const loadCourseInfo = (): CourseInfo => {
   try {
+    const ver = localStorage.getItem(VERSION_KEY);
+    if (ver !== SYLLABUS_VERSION) {
+      localStorage.setItem(VERSION_KEY, SYLLABUS_VERSION);
+      saveCourseInfo(initialCourseInfo);
+      return initialCourseInfo;
+    }
     const raw = localStorage.getItem(COURSE_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {
@@ -26,10 +34,16 @@ export const saveCourseInfo = (info: CourseInfo): void => {
 
 export const loadSubjects = (): Subject[] => {
   try {
+    const ver = localStorage.getItem(VERSION_KEY);
+    if (ver !== SYLLABUS_VERSION) {
+      localStorage.setItem(VERSION_KEY, SYLLABUS_VERSION);
+      saveSubjects(initialSubjects);
+      return initialSubjects;
+    }
     const raw = localStorage.getItem(SUBJECTS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.code?.startsWith('CSM31')) {
         return parsed;
       }
     }
@@ -55,10 +69,11 @@ export const loadDailyGoals = (): DailyGoal[] => {
     console.warn('Failed to load daily goals', e);
   }
   return [
-    { id: 'goal-1', text: 'Solve 0/1 Knapsack DP table problem (CS501)', completed: true, date: new Date().toISOString().split('T')[0] },
-    { id: 'goal-2', text: 'Revise Normalization 1NF to BCNF rules (CS502)', completed: false, date: new Date().toISOString().split('T')[0] },
-    { id: 'goal-3', text: 'Practice Banker’s Algorithm safety state numerical (CS503)', completed: false, date: new Date().toISOString().split('T')[0] },
-    { id: 'goal-4', text: 'Review Subnetting VLSM CIDR IP ranges (CS504)', completed: false, date: new Date().toISOString().split('T')[0] },
+    { id: 'goal-1', text: 'Solve Apriori candidate generation & pruning (CSM3101 DWDM)', completed: true, date: new Date().toISOString().split('T')[0] },
+    { id: 'goal-2', text: 'Draw Control Flow Graph & Calculate Cyclomatic Complexity V(G) (CSM3102 OOSE)', completed: false, date: new Date().toISOString().split('T')[0] },
+    { id: 'goal-3', text: 'Practice CRC Polynomial Division & VLSM Subnetting (CSM3103 CN)', completed: false, date: new Date().toISOString().split('T')[0] },
+    { id: 'goal-4', text: 'Trace Water Jug State Space rules & A* heuristic (CSM3104 AI)', completed: false, date: new Date().toISOString().split('T')[0] },
+    { id: 'goal-5', text: 'Revise Confusion Matrix, Precision, Recall, F1 formulas (CSM3105 Data Science)', completed: false, date: new Date().toISOString().split('T')[0] },
   ];
 };
 
@@ -78,9 +93,9 @@ export const loadStudySessions = (): StudySessionLog[] => {
     console.warn('Failed to load sessions', e);
   }
   return [
-    { id: 's1', subjectId: 'subject-1', subjectName: 'Design & Analysis of Algorithms', minutes: 45, timestamp: new Date(Date.now() - 3600000 * 5).toISOString(), type: 'pomodoro' },
-    { id: 's2', subjectId: 'subject-2', subjectName: 'Database Management Systems', minutes: 60, timestamp: new Date(Date.now() - 3600000 * 24).toISOString(), type: 'revision' },
-    { id: 's3', subjectId: 'subject-1', subjectName: 'Design & Analysis of Algorithms', minutes: 180, timestamp: new Date(Date.now() - 3600000 * 48).toISOString(), type: 'mock_exam' },
+    { id: 's1', subjectId: 'csm3101', subjectName: 'Data Warehousing and Data Mining', minutes: 45, timestamp: new Date(Date.now() - 3600000 * 5).toISOString(), type: 'pomodoro' },
+    { id: 's2', subjectId: 'csm3102', subjectName: 'Object-Oriented Software Engineering', minutes: 60, timestamp: new Date(Date.now() - 3600000 * 24).toISOString(), type: 'revision' },
+    { id: 's3', subjectId: 'csm3103', subjectName: 'Computer Networks', minutes: 180, timestamp: new Date(Date.now() - 3600000 * 48).toISOString(), type: 'mock_exam' },
   ];
 };
 
@@ -92,7 +107,7 @@ export const saveStudySessions = (sessions: StudySessionLog[]): void => {
   }
 };
 
-// IndexedDB for storing larger uploaded PDF blobs reliably in browser
+// IndexedDB for storing uploaded PDF blobs
 const DB_NAME = 'SmartEduHubFilesDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'uploadedFiles';
@@ -155,20 +170,23 @@ export const exportDataBackup = (course: CourseInfo, subjects: Subject[], goals:
     subjects,
     goals,
     exportedAt: new Date().toISOString(),
-    version: '1.0',
+    version: SYLLABUS_VERSION,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `smart-education-hub-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `gvp-r22-csm-study-hub-backup-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
 };
 
 export const resetToDefaultData = (): void => {
+  localStorage.removeItem(VERSION_KEY);
   localStorage.removeItem(COURSE_KEY);
   localStorage.removeItem(SUBJECTS_KEY);
   localStorage.removeItem(GOALS_KEY);
   localStorage.removeItem(SESSIONS_KEY);
+  localStorage.removeItem('smart_edu_course_info');
+  localStorage.removeItem('smart_edu_subjects');
 };
