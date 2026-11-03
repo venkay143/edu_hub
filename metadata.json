@@ -1,0 +1,6 @@
+{
+  "name": "Smart Education Hub - Semester Examination Portal",
+  "description": "An all-in-one frontend examination preparation hub with 5-subject syllabus checklists, model papers, faculty lecture notes, frequency analysis, and study progress tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
